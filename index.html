@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UPSC Economics Command Center — VisionIAS QRM Edition</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            command: {
+              950: '#060913',
+              900: '#0B1120',
+              800: '#131C31',
+              700: '#1E293B',
+              accent: '#F59E0B',
+              emerald: '#10B981',
+              cyan: '#06B6D4',
+              rose: '#F43F5E',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Glassmorphism & Flip Card Animations */
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .glass-card {
+      background: rgba(19, 28, 49, 0.72);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    html:not(.dark) .glass-card {
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+    }
+    .flip-card {
+      perspective: 1200px;
+      cursor: pointer;
+    }
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.3);
+      border-radius: 9999px;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.25); }
+      50% { box-shadow: 0 0 28px rgba(245, 158, 11, 0.55); }
+    }
+    .rank-glow {
+      animation: pulseGlow 3s infinite;
+    }
+    .tab-active {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #0B1120 !important;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-command-950 dark:text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Toast Notification Banner (Replaces alert()) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Top Command Header -->
+  <header class="sticky top-0 z-40 glass-card border-b border-slate-200/60 dark:border-slate-800/80 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand & Emblem -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-extrabold text-lg shadow-lg">
+          <i class="fa-solid fa-landmark"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight">LBSNAA <span class="text-amber-500">ECON</span> COMMAND</h1>
+            <span class="hidden sm:inline-block text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30">VisionIAS QRM</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">UPSC CSE Prelims Tactical Revision System</p>
+        </div>
+      </div>
+
+      <!-- XP, Rank & Controls -->
+      <div class="flex items-center gap-2 sm:gap-4">
+        <!-- Streak -->
+        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs sm:text-sm font-bold" title="Consecutive Correct Streak">
+          <i class="fa-solid fa-fire"></i>
+          <span id="streak-count">0</span>
+        </div>
+
+        <!-- XP & Rank Badge -->
+        <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 rank-glow">
+          <div class="text-right">
+            <div id="rank-badge" class="text-[11px] font-extrabold uppercase tracking-wider text-amber-500">Aspirant</div>
+            <div class="w-20 sm:w-28 h-1.5 bg-slate-300 dark:bg-slate-800 rounded-full overflow-hidden mt-0.5">
+              <div id="xp-bar" class="h-full bg-gradient-to-r from-amber-400 to-emerald-400 transition-all duration-500" style="width: 10%"></div>
+            </div>
+          </div>
+          <div class="text-xs font-mono font-bold text-slate-700 dark:text-slate-200">
+            <span id="xp-count">0</span> XP
+          </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-200/70 dark:bg-slate-800/80 hover:bg-amber-500/20 text-slate-700 dark:text-amber-400 transition" title="Toggle Dark/Light Theme">
+          <i id="theme-icon" class="fa-solid fa-sun"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="max-w-7xl mx-auto px-4 pt-4">
+    <div class="glass-card p-1.5 rounded-2xl flex flex-wrap sm:flex-nowrap gap-1.5 justify-between">
+      <button onclick="switchTab('vault')" id="tab-vault" class="nav-btn tab-active flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition">
+        <i class="fa-solid fa-brain"></i>
+        <span>Memory Vault</span>
+      </button>
+      <button onclick="switchTab('arena')" id="tab-arena" class="nav-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 flex items-center justify-center gap-2 transition">
+        <i class="fa-solid fa-crosshairs"></i>
+        <span>Elimination Arena</span>
+      </button>
+      <button onclick="switchTab('simulator')" id="tab-simulator" class="nav-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 flex items-center justify-center gap-2 transition">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Formula & Policy Sim</span>
+      </button>
+      <button onclick="switchTab('minigames')" id="tab-minigames" class="nav-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 flex items-center justify-center gap-2 transition">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Rapid-Fire Drills</span>
+      </button>
+      <button onclick="switchTab('committees')" id="tab-committees" class="nav-btn flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/60 flex items-center justify-center gap-2 transition">
+        <i class="fa-solid fa-scroll"></i>
+        <span>Committees & Indices</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Workspace -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+
+    <!-- ==================== MODULE 1: MEMORY VAULT ==================== -->
+    <section id="view-vault" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-extrabold flex items-center gap-2">
+            <span class="text-amber-500"><i class="fa-solid fa-vault"></i></span> High-Yield Memory Vault
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">Tap any card to flip between Mnemonic Code & VisionIAS QRM Core Facts (+15 XP per card mastered).</p>
+        </div>
+        <!-- Category Filter -->
+        <div class="flex flex-wrap gap-1.5" id="vault-filters">
+          <button onclick="filterVault('ALL')" class="vault-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950">All (11)</button>
+          <button onclick="filterVault('MACRO')" class="vault-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800">Macro & Money</button>
+          <button onclick="filterVault('FISCAL')" class="vault-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800">Budget & Tax</button>
+          <button onclick="filterVault('EXTERNAL')" class="vault-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800">External & WTO</button>
+          <button onclick="filterVault('AGRI')" class="vault-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-slate-800">Agri & Infra</button>
+        </div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="vault-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </section>
+
+    <!-- ==================== MODULE 2: PRELIMS ELIMINATION ARENA ==================== -->
+    <section id="view-arena" class="hidden space-y-6">
+      <!-- Arena Header & Controls -->
+      <div class="glass-card p-4 sm:p-5 rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-extrabold flex items-center gap-2">
+            <i class="fa-solid fa-crosshairs text-amber-500"></i> Prelims Elimination Arena
+          </h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Exact UPSC Marking: <span class="text-emerald-500 font-bold">+2.00</span> Correct | <span class="text-rose-500 font-bold">-0.66</span> Wrong | <span class="text-slate-400 font-bold">0.00</span> Skip
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Topic Selector -->
+          <select id="arena-topic" onchange="resetArena()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none">
+            <option value="ALL">All Topics (Full Mock)</option>
+            <option value="National Income & Stats">National Income & Stats</option>
+            <option value="Monetary Policy & Banking">Monetary Policy & Banking</option>
+            <option value="Inflation & Unemployment">Inflation & Unemployment</option>
+            <option value="Budget & Taxation">Budget & Taxation</option>
+            <option value="External Sector & WTO">External Sector & WTO</option>
+            <option value="Agriculture & Infrastructure">Agriculture & Infrastructure</option>
+          </select>
+
+          <!-- Timer Toggle -->
+          <button id="arena-timer-toggle" onclick="toggleArenaTimer()" class="px-3 py-2 rounded-xl text-xs font-bold bg-cyan-500/15 text-cyan-500 border border-cyan-500/30 flex items-center gap-1.5">
+            <i class="fa-solid fa-stopwatch"></i>
+            <span id="arena-timer-label">Timer: ON (72s)</span>
+          </button>
+
+          <button onclick="resetArena()" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-amber-500 hover:text-slate-950 transition">
+            <i class="fa-solid fa-rotate-right"></i> Restart
+          </button>
+        </div>
+      </div>
+
+      <!-- Scoreboard Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div class="glass-card p-3 rounded-xl text-center">
+          <div class="text-[11px] uppercase text-slate-400 font-semibold">UPSC Net Score</div>
+          <div id="arena-score" class="text-xl font-mono font-extrabold text-amber-500">0.00</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center">
+          <div class="text-[11px] uppercase text-slate-400 font-semibold">Correct (+2)</div>
+          <div id="arena-correct" class="text-xl font-mono font-extrabold text-emerald-500">0</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center">
+          <div class="text-[11px] uppercase text-slate-400 font-semibold">Incorrect (-0.66)</div>
+          <div id="arena-wrong" class="text-xl font-mono font-extrabold text-rose-500">0</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center">
+          <div class="text-[11px] uppercase text-slate-400 font-semibold">Skipped (0)</div>
+          <div id="arena-skipped" class="text-xl font-mono font-extrabold text-slate-400">0</div>
+        </div>
+        <div class="glass-card p-3 rounded-xl text-center col-span-2 sm:col-span-1">
+          <div class="text-[11px] uppercase text-slate-400 font-semibold">Time Left</div>
+          <div id="arena-clock" class="text-xl font-mono font-extrabold text-cyan-400">72s</div>
+        </div>
+      </div>
+
+      <!-- Active Question Card -->
+      <div id="arena-card" class="glass-card p-5 sm:p-7 rounded-2xl space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span id="q-tag" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">Topic</span>
+          <span id="q-progress" class="text-xs font-mono text-slate-400">Question 1 of 18</span>
+        </div>
+
+        <div id="q-text" class="text-sm sm:text-base font-medium leading-relaxed whitespace-pre-line"></div>
+
+        <!-- Elimination Hint Box -->
+        <div>
+          <button id="hint-btn" onclick="revealEliminationHint()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-500/25 transition flex items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Reveal Prelims Elimination Trick
+          </button>
+          <div id="hint-box" class="hidden mt-3 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-xs sm:text-sm text-indigo-300"></div>
+        </div>
+
+        <!-- Options -->
+        <div id="q-options" class="grid grid-cols-1 gap-3"></div>
+
+        <!-- Explanation Box -->
+        <div id="q-explanation" class="hidden p-4 rounded-xl bg-slate-900/80 border border-emerald-500/30 text-xs sm:text-sm space-y-1.5"></div>
+
+        <!-- Bottom Action Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-200/20 dark:border-slate-800">
+          <button id="skip-btn" onclick="skipQuestion()" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition">
+            Skip Question (0 Marks)
+          </button>
+          <button id="next-q-btn" onclick="nextQuestion()" class="hidden px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition flex items-center gap-2">
+            Next Question <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 3: FORMULA & CONCEPT SIMULATOR ==================== -->
+    <section id="view-simulator" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- SIMULATOR 1: NATIONAL INCOME CONVERTER -->
+        <div class="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-extrabold flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-amber-500"></i> National Income Aggregate Lab
+            </h3>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-500">Base Year: 2011-12</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Adjust <strong>Depreciation</strong>, <strong>NFIA</strong>, <strong>Indirect Taxes</strong>, and <strong>Subsidies</strong> to see live transitions across all 8 aggregates.
+          </p>
+
+          <!-- Sliders -->
+          <div class="space-y-3 text-xs">
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span>GDP at Market Price (GDP<sub>MP</sub>)</span>
+                <span class="font-mono text-amber-500">₹<span id="val-gdpmp">300</span> Lakh Cr</span>
+              </div>
+              <input type="range" id="in-gdpmp" min="100" max="500" value="300" oninput="updateNationalIncome()" class="w-full accent-amber-500">
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span>Depreciation (Consumption of Fixed Capital)</span>
+                <span class="font-mono text-rose-400">- ₹<span id="val-dep">30</span> Lakh Cr</span>
+              </div>
+              <input type="range" id="in-dep" min="5" max="80" value="30" oninput="updateNationalIncome()" class="w-full accent-rose-500">
+            </div>
+
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span>Net Factor Income from Abroad (NFIA = Factor Income Earned - Paid)</span>
+                <span class="font-mono text-cyan-400"><span id="val-nfia">-5</span> Lakh Cr</span>
+              </div>
+              <input type="range" id="in-nfia" min="-40" max="40" value="-5" oninput="updateNationalIncome()" class="w-full accent-cyan-500">
+              <p class="text-[11px] text-slate-400 mt-0.5">*For India, NFIA is generally negative, so GDP &gt; GNP.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between font-semibold mb-1">
+                  <span>Indirect Taxes</span>
+                  <span class="font-mono text-indigo-400">₹<span id="val-it">40</span></span>
+                </div>
+                <input type="range" id="in-it" min="0" max="100" value="40" oninput="updateNationalIncome()" class="w-full accent-indigo-500">
+              </div>
+              <div>
+                <div class="flex justify-between font-semibold mb-1">
+                  <span>Subsidies</span>
+                  <span class="font-mono text-emerald-400">₹<span id="val-sub">15</span></span>
+                </div>
+                <input type="range" id="in-sub" min="0" max="100" value="15" oninput="updateNationalIncome()" class="w-full accent-emerald-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Outputs Grid -->
+          <div class="grid grid-cols-2 gap-2.5 pt-2">
+            <div class="p-3 rounded-xl bg-slate-200/60 dark:bg-slate-900/80 border border-slate-300/40 dark:border-slate-800">
+              <div class="text-[11px] text-slate-400">Net Indirect Tax (NIT = IT - Sub)</div>
+              <div id="out-nit" class="text-base font-mono font-bold text-indigo-400">₹25 Lakh Cr</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-200/60 dark:bg-slate-900/80 border border-slate-300/40 dark:border-slate-800">
+              <div class="text-[11px] text-slate-400">NDP<sub>MP</sub> (GDP<sub>MP</sub> - Dep)</div>
+              <div id="out-ndpmp" class="text-base font-mono font-bold">₹270 Lakh Cr</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-200/60 dark:bg-slate-900/80 border border-slate-300/40 dark:border-slate-800">
+              <div class="text-[11px] text-slate-400">GNP<sub>MP</sub> (GDP<sub>MP</sub> + NFIA)</div>
+              <div id="out-gnpmp" class="text-base font-mono font-bold text-cyan-400">₹295 Lakh Cr</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-200/60 dark:bg-slate-900/80 border border-slate-300/40 dark:border-slate-800">
+              <div class="text-[11px] text-slate-400">GDP<sub>FC</sub> (GDP<sub>MP</sub> - NIT)</div>
+              <div id="out-gdpfc" class="text-base font-mono font-bold">₹275 Lakh Cr</div>
+            </div>
+            <div class="col-span-2 p-3.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-500/40 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-extrabold text-amber-500">NNP at Factor Cost (National Income)</div>
+                <div class="text-[11px] text-slate-400">GNP<sub>MP</sub> - Depreciation - Net Indirect Taxes</div>
+              </div>
+              <div id="out-nnpfc" class="text-xl font-mono font-extrabold text-emerald-400">₹240 Lakh Cr</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIMULATOR 2: MONEY MULTIPLIER & CRR SANDBOX -->
+        <div class="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-extrabold flex items-center gap-2">
+              <i class="fa-solid fa-money-bill-trend-up text-emerald-500"></i> Money Multiplier & CRR Sandbox
+            </h3>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-500">m = 1 / CRR</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Replicates the VisionIAS QRM Banking Credit Creation table (UBI &rarr; SBI &rarr; BoB &rarr; BoI) with an initial deposit of <strong>₹1,000</strong>.
+          </p>
+
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span>Cash Reserve Ratio (CRR %)</span>
+              <span class="font-mono text-emerald-400"><span id="val-crr">20</span>% (Multiplier = <span id="val-mult">5.00</span>x)</span>
+            </div>
+            <input type="range" id="in-crr" min="4" max="50" value="20" oninput="updateMoneyMultiplier()" class="w-full accent-emerald-500">
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5 text-center">
+            <div class="p-3 rounded-xl bg-slate-200/60 dark:bg-slate-900/80">
+              <div class="text-[11px] text-slate-400">Initial Deposit (M0)</div>
+              <div class="text-base font-mono font-bold">₹1,000</div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-200/60 dark:bg-slate-900/80">
+              <div class="text-[11px] text-slate-400">Total Reserves Kept</div>
+              <div class="text-base font-mono font-bold text-rose-400">₹1,000</div>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30">
+              <div class="text-[11px] text-emerald-400 font-bold">Total Money (M3)</div>
+              <div id="out-total-money" class="text-base font-mono font-extrabold text-emerald-400">₹5,000</div>
+            </div>
+          </div>
+
+          <!-- Round-by-Round Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200/30 dark:border-slate-800">
+            <table class="w-full text-xs text-left">
+              <thead class="bg-slate-200/70 dark:bg-slate-900 text-slate-500 dark:text-slate-400 uppercase font-mono text-[10px]">
+                <tr>
+                  <th class="p-2.5">Bank Round</th>
+                  <th class="p-2.5">Deposit (₹)</th>
+                  <th class="p-2.5">CRR Kept (₹)</th>
+                  <th class="p-2.5">Loan Given (₹)</th>
+                </tr>
+              </thead>
+              <tbody id="multiplier-table-body" class="divide-y divide-slate-200/20 dark:divide-slate-800 font-mono"></tbody>
+            </table>
+          </div>
+          <p class="text-[11px] text-slate-400">
+            <strong>UPSC Key Insight:</strong> Higher CRR or higher Currency-Deposit Ratio (public holding cash) reduces the Money Multiplier. CRR earns <strong>0% interest</strong> from RBI.
+          </p>
+        </div>
+      </div>
+
+      <!-- SIMULATOR 3: RBI GOVERNOR & FM MACRO POLICY LEVER GAME -->
+      <div class="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-lg font-extrabold flex items-center gap-2">
+              <i class="fa-solid fa-chess-king text-amber-500"></i> Mint Street & North Block Crisis Room
+            </h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Act as RBI Governor & Finance Minister. Deploy the exact Monetary/Fiscal policy tool to stabilize the economy!</p>
+          </div>
+          <span id="crisis-counter" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/15 text-amber-500">Scenario 1 / 5</span>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-200/60 dark:bg-slate-900/90 border border-amber-500/30">
+          <div class="text-xs font-bold uppercase tracking-wider text-amber-500 mb-1" id="crisis-title">Scenario Title</div>
+          <p class="text-sm leading-relaxed" id="crisis-desc">Scenario description...</p>
+        </div>
+
+        <div id="crisis-options" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        <div id="crisis-feedback" class="hidden p-4 rounded-xl text-xs sm:text-sm"></div>
+        <div class="flex justify-end">
+          <button id="next-crisis-btn" onclick="nextCrisis()" class="hidden px-4 py-2 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-400 transition">
+            Next Macro Crisis <i class="fa-solid fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 4: RAPID-FIRE MINI GAMES ==================== -->
+    <section id="view-minigames" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- MINI-GAME A: SORT THE SEQUENCE (30s) -->
+        <div class="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-extrabold flex items-center gap-2">
+                <i class="fa-solid fa-arrow-down-9-1 text-cyan-400"></i> Sequence Sorter (30s Blitz)
+              </h3>
+              <p class="text-xs text-slate-400">Tap items in the exact descending/chronological order!</p>
+            </div>
+            <div class="px-3 py-1.5 rounded-xl bg-cyan-500/15 text-cyan-400 font-mono font-extrabold text-sm">
+              <i class="fa-solid fa-clock mr-1"></i><span id="sort-timer">30</span>s
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button onclick="startSortGame('CORE')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-slate-950">8 Core Industries</button>
+            <button onclick="startSortGame('MONEY')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-cyan-500/20">M1-M4 Liquidity</button>
+            <button onclick="startSortGame('INTEGRATION')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-200 dark:bg-slate-800 hover:bg-cyan-500/20">7 Integration Stages</button>
+          </div>
+
+          <div id="sort-prompt" class="text-xs font-bold text-amber-500">Select a sequence above or start sorting 8 Core Industries (Highest Weight &rarr; Lowest Weight):</div>
+
+          <!-- Selected Sequence Slots -->
+          <div class="p-3 rounded-xl bg-slate-200/50 dark:bg-slate-900/90 border border-dashed border-cyan-500/40 min-h-[90px]">
+            <div class="text-[11px] text-slate-400 mb-2 flex justify-between">
+              <span>Your Ordered Sequence (Tap to remove):</span>
+              <button onclick="clearSortSelection()" class="text-rose-400 hover:underline">Reset Order</button>
+            </div>
+            <div id="sort-selected" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Jumbled Pool -->
+          <div>
+            <div class="text-[11px] text-slate-400 mb-2">Available Items (Tap in order):</div>
+            <div id="sort-pool" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div id="sort-result" class="hidden p-3 rounded-xl text-xs font-semibold"></div>
+        </div>
+
+        <!-- MINI-GAME B: TRAP SPOTTER (TRUE / FALSE BLITZ) -->
+        <div class="glass-card p-5 sm:p-6 rounded-2xl space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-extrabold flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> UPSC Trap Spotter (15s Blitz)
+              </h3>
+              <p class="text-xs text-slate-400">Spot classic Prelims examiner traps before the 15-second clock hits zero!</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold text-emerald-400">Score: <span id="trap-score">0</span></span>
+              <div class="px-3 py-1.5 rounded-xl bg-rose-500/15 text-rose-400 font-mono font-extrabold text-sm">
+                <span id="trap-timer">15</span>s
+              </div>
+            </div>
+          </div>
+
+          <div id="trap-card" class="p-5 rounded-2xl bg-slate-200/70 dark:bg-slate-900/90 border border-slate-300/40 dark:border-slate-800 min-h-[140px] flex flex-col justify-center">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-amber-500 mb-2" id="trap-num">Statement 1 / 12</span>
+            <p id="trap-statement" class="text-sm sm:text-base font-bold leading-relaxed"></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3" id="trap-controls">
+            <button onclick="answerTrap(true)" class="py-3.5 rounded-xl font-extrabold text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500 hover:text-slate-950 transition">
+              <i class="fa-solid fa-check mr-1"></i> TRUE (Fact)
+            </button>
+            <button onclick="answerTrap(false)" class="py-3.5 rounded-xl font-extrabold text-sm bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500 hover:text-white transition">
+              <i class="fa-solid fa-xmark mr-1"></i> FALSE (UPSC Trap!)
+            </button>
+          </div>
+
+          <div id="trap-feedback" class="hidden p-3.5 rounded-xl text-xs leading-relaxed"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== MODULE 5: COMMITTEES & INDICES MATRIX ==================== -->
+    <section id="view-committees" class="hidden space-y-6">
+      <div class="glass-card p-5 rounded-2xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-extrabold flex items-center gap-2">
+              <i class="fa-solid fa-scroll text-amber-500"></i> VisionIAS Master Committees & Indices Matrix
+            </h2>
+            <p class="text-xs text-slate-400">Instant lookup for every committee, base year, and publishing agency mentioned in the module.</p>
+          </div>
+          <input type="text" id="committee-search" onkeyup="renderCommittees()" placeholder="Search committee, base year, agency..." class="px-3.5 py-2 rounded-xl text-xs bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 w-full sm:w-64 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200/30 dark:border-slate-800">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-slate-200/80 dark:bg-slate-900 text-slate-600 dark:text-slate-300 uppercase font-mono text-[11px]">
+              <tr>
+                <th class="p-3">Committee / Index</th>
+                <th class="p-3">Domain / Base Year</th>
+                <th class="p-3">Key Recommendation / Publishing Agency</th>
+              </tr>
+            </thead>
+            <tbody id="committees-tbody" class="divide-y divide-slate-200/20 dark:divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ==================== STATE & GAMIFICATION ====================
+    const state = {
+      xp: 0,
+      streak: 0,
+      flippedCards: new Set(),
+      arena: {
+        questions: [],
+        index: 0,
+        score: 0,
+        correct: 0,
+        wrong: 0,
+        skipped: 0,
+        answered: false,
+        timerEnabled: true,
+        timeLeft: 72,
+        timerId: null
+      },
+      crisisIndex: 0,
+      sortGame: {
+        type: 'CORE',
+        items: [],
+        selected: [],
+        timeLeft: 30,
+        timerId: null
+      },
+      trapGame: {
+        index: 0,
+        score: 0,
+        timeLeft: 15,
+        timerId: null,
+        locked: false
+      }
+    };
+
+    const RANKS = [
+      { min: 0, title: "Aspirant", next: 100 },
+      { min: 100, title: "Prelims Qualifier", next: 250 },
+      { min: 250, title: "Mains Contender", next: 500 },
+      { min: 500, title: "IAS Rank 1", next: 1000 }
+    ];
+
+    function addXP(points, reason) {
+      state.xp += points;
+      document.getElementById('xp-count').textContent = state.xp;
+      let currentRank = RANKS[0];
+      for (const r of RANKS) {
+        if (state.xp >= r.min) currentRank = r;
+      }
+      document.getElementById('rank-badge').textContent = currentRank.title;
+      const pct = Math.min(100, Math.round(((state.xp - currentRank.min) / (currentRank.next - currentRank.min)) * 100));
+      document.getElementById('xp-bar').style.width = `${Math.max(10, pct)}%`;
+      showToast(`+${points} XP — ${reason}`, 'amber');
+    }
+
+    function updateStreak(isCorrect) {
+      if (isCorrect) {
+        state.streak++;
+      } else {
+        state.streak = 0;
+      }
+      document.getElementById('streak-count').textContent = state.streak;
+    }
+
+    function showToast(msg, color = 'amber') {
+      const container = document.getElementById('toast-container');
+      const el = document.createElement('div');
+      const colors = {
+        amber: 'bg-amber-500 text-slate-950',
+        emerald: 'bg-emerald-500 text-slate-950',
+        rose: 'bg-rose-500 text-white'
+      };
+      el.className = `${colors[color] || colors.amber} px-4 py-2.5 rounded-xl shadow-xl text-xs font-extrabold flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0`;
+      el.innerHTML = `<i class="fa-solid fa-bolt"></i><span>${msg}</span>`;
+      container.appendChild(el);
+      requestAnimationFrame(() => {
+        el.classList.remove('translate-y-2', 'opacity-0');
+      });
+      setTimeout(() => {
+        el.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => el.remove(), 300);
+      }, 2400);
+    }
+
+    // Theme Toggle
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const html = document.documentElement;
+      html.classList.toggle('dark');
+      const isDark = html.classList.contains('dark');
+      document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    });
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      ['vault', 'arena', 'simulator', 'minigames', 'committees'].forEach(t => {
+        document.getElementById(`view-${t}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-${t}`);
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-slate-600', 'dark:text-slate-300');
+      });
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${tabId}`);
+      activeBtn.classList.add('tab-active');
+      activeBtn.classList.remove('text-slate-600', 'dark:text-slate-300');
+
+      if (tabId === 'arena' && state.arena.questions.length === 0) resetArena();
+      if (tabId === 'minigames') {
+        if (!state.sortGame.timerId) startSortGame('CORE');
+        if (!state.trapGame.timerId) loadTrapStatement();
+      }
+    }
+
+    // ==================== DATA 1: MEMORY VAULT (11 CARDS) ====================
+    const VAULT_CARDS = [
+      {
+        id: 'core8',
+        cat: 'AGRI',
+        badge: 'IIP & Infrastructure',
+        title: '8 Core Industries Weightage Order',
+        mnemonic: 'RE - SC - CN - CF',
+        frontHint: '40.27% combined weight in IIP (Base 2011-12)',
+        backDetails: [
+          '1. Refinery Products (28.04%) — Highest',
+          '2. Electricity (19.85%) | 3. Steel (17.92%)',
+          '4. Coal (10.33%) | 5. Crude Oil (8.98%)',
+          '6. Natural Gas (6.88%) | 7. Cement (5.37%)',
+          '8. Fertilizers (2.63%) — Lowest'
+        ]
+      },
+      {
+        id: 'money',
+        cat: 'MACRO',
+        badge: 'Monetary Aggregates',
+        title: 'Money Supply Liquidity Order (M1 to M4)',
+        mnemonic: 'M1 > M2 > M3 > M4 (Liquidity)',
+        frontHint: 'Trap Alert: Does M3 include Post Office deposits?',
+        backDetails: [
+          'M1 (Narrow Money) = CU + DD (Most Liquid)',
+          'M2 = M1 + Savings deposits with Post Office',
+          'M3 (Broad Money) = M1 + Net Time Deposits of Commercial Banks (NO Post Office!)',
+          'M4 = M3 + Total Post Office Deposits (excl. NSC)',
+          'M0 (Reserve Money) = Currency in Circulation + Bankers’ & Other Deposits with RBI'
+        ]
+      },
+      {
+        id: 'integration',
+        cat: 'EXTERNAL',
+        badge: 'International Trade',
+        title: '7 Stages of Economic Integration',
+        mnemonic: 'P - F - C - C - C - E - M',
+        frontHint: 'From lowest integration to full monetary union',
+        backDetails: [
+          '1. PTA (Preferential Trade Area)',
+          '2. FTA (Free Trade Area) -> 3. CECA / CEPA',
+          '4. Customs Union (Common External Tariff)',
+          '5. Common Market (Free movement of Labor & Capital)',
+          '6. Economic Union -> 7. Monetary Union (e.g., Eurozone)'
+        ]
+      },
+      {
+        id: 'wto',
+        cat: 'EXTERNAL',
+        badge: 'WTO AoA',
+        title: 'WTO Agreement on Agriculture Boxes',
+        mnemonic: 'Traffic Light + Dev Box',
+        frontHint: 'Green, Blue, Amber & Art 6.2',
+        backDetails: [
+          'Green Box: Go! Non-distorting (R&D, extension, food security) — No limit.',
+          'Blue Box: Amber with conditions (production-limiting quotas) — No limit.',
+          'Amber Box: Slow Down! Trade-distorting (MSP, power/fertilizer subsidies) — De Minimis cap (5% Developed, 10% Developing).',
+          'Development Box (Art 6.2): Input/investment subsidies for poor farmers in developing nations.'
+        ]
+      },
+      {
+        id: 'ni',
+        cat: 'MACRO',
+        badge: 'National Income',
+        title: 'National Income Conversion Shortcuts',
+        mnemonic: 'G-N (-Dep) | D-N (+NFIA) | MP-FC (-NIT)',
+        frontHint: '3 golden bridges across all 8 aggregates',
+        backDetails: [
+          'Gross to Net: Subtract Depreciation (Consumption of Fixed Capital).',
+          'Domestic to National: Add NFIA (Factor income earned abroad - paid abroad).',
+          'Market Price to Factor Cost: Subtract Net Indirect Taxes (NIT = Indirect Taxes - Subsidies).',
+          'National Income = NNP at Factor Cost.'
+        ]
+      },
+      {
+        id: 'msp',
+        cat: 'AGRI',
+        badge: 'Agriculture Pricing',
+        title: '23 MSP Crops Breakdown (CACP)',
+        mnemonic: '7 - 5 - 7 - 4 = 23 Crops',
+        frontHint: 'Recommended by CACP, approved by CCEA',
+        backDetails: [
+          '7 Cereals: Paddy, Wheat, Maize, Sorghum, Pearl Millet, Barley, Ragi.',
+          '5 Pulses: Gram, Tur (Arhar), Moong, Urad, Lentil.',
+          '7 Oilseeds: Groundnut, Rapeseed-Mustard, Soyabean, Sesamum, Sunflower, Safflower, Nigerseed.',
+          '4 Commercial Crops: Copra, Sugarcane (FRP), Cotton, Raw Jute.'
+        ]
+      },
+      {
+        id: 'npa',
+        cat: 'MACRO',
+        badge: 'Banking Regulation',
+        title: 'NPA & SMA Classification Rules',
+        mnemonic: '30 - 60 - 90 Days & Crop Seasons',
+        frontHint: 'Standard -> SMA -> Sub-standard -> Doubtful -> Loss',
+        backDetails: [
+          'SMA-0: Overdue 1–30 days | SMA-1: 31–60 days | SMA-2: 61–90 days.',
+          'NPA: Interest/principal overdue > 90 days.',
+          'Sub-standard: NPA <= 12 months | Doubtful: NPA > 12 months.',
+          'Agriculture NPA: Short-duration crop = 2 crop seasons; Long-duration crop = 1 crop season.'
+        ]
+      },
+      {
+        id: 'funds',
+        cat: 'FISCAL',
+        badge: 'Constitutional Articles',
+        title: '3 Government Funds & Articles',
+        mnemonic: '266(1) - 266(2) - 267(1)',
+        frontHint: 'Parliamentary approval & corpus rules',
+        backDetails: [
+          'Consolidated Fund of India [Art 266(1)]: All revenues, loans raised, loan recoveries. Prior Parliament approval mandatory.',
+          'Public Account of India [Art 266(2)]: PF, small savings. Govt acts as banker; NO prior Parliament approval needed.',
+          'Contingency Fund [Art 267(1)]: Held by Finance Secy on behalf of President (Corpus: ₹500 Cr / enhanced ₹30,000 Cr); Post-facto approval.'
+        ]
+      },
+      {
+        id: 'wb',
+        cat: 'EXTERNAL',
+        badge: 'Bretton Woods',
+        title: 'World Bank Group 5 Institutions',
+        mnemonic: 'IBRD - IDA - IFC - MIGA - ICSID',
+        frontHint: 'Which one is India NOT a member of?',
+        backDetails: [
+          '1. IBRD (1944): Loans to middle-income & creditworthy low-income countries.',
+          '2. IDA (1960): Soft loan window (zero/low interest) for poorest countries.',
+          '3. IFC (1956): Private sector investment arm.',
+          '4. MIGA (1988): Political risk insurance.',
+          '5. ICSID (1966): Investment dispute settlement — INDIA IS NOT A MEMBER!'
+        ]
+      },
+      {
+        id: 'cpi',
+        cat: 'MACRO',
+        badge: 'Inflation Indices',
+        title: 'CPI & WPI Base Years & Agencies',
+        mnemonic: '2016 | 1986-87 | 2012 | 2011-12',
+        frontHint: 'Labour Bureau vs NSO vs OEA',
+        backDetails: [
+          'CPI-IW (Industrial Workers): Base 2016 — Labour Bureau (Min. of Labour). Used for DA.',
+          'CPI-AL & CPI-RL: Base 1986-87 — Labour Bureau (MGNREGA wage indexing).',
+          'CPI (Rural / Urban / Combined): Base 2012 — NSO (MoSPI). RBI’s nominal anchor (4% ± 2%).',
+          'WPI: Base 2011-12 — Office of Economic Adviser (DPIIT). Goods only, NO services!'
+        ]
+      },
+      {
+        id: 'zbnf',
+        cat: 'AGRI',
+        badge: 'Sustainable Farming',
+        title: 'ZBNF 4 Pillars (Subhash Palekar)',
+        mnemonic: 'B - J - M - W (Zero Budget Natural Farming)',
+        frontHint: 'Chemical-free agro-ecological farming',
+        backDetails: [
+          '1. Beejamrutham: Seed treatment with cow dung, urine, lime & soil.',
+          '2. Jeevamrutham: Fermented microbial culture (cow dung/urine, jaggery, pulse flour) to boost soil microbes.',
+          '3. Mulching (Acchadana): Soil, straw, and live mulch to conserve topsoil moisture.',
+          '4. Waaphasa: Soil aeration (50% air + 50% water vapor in soil), reducing irrigation by 90%.'
+        ]
+      }
+    ];
+
+    function renderVault(filter = 'ALL') {
+      const grid = document.getElementById('vault-grid');
+      grid.innerHTML = '';
+      const filtered = filter === 'ALL' ? VAULT_CARDS : VAULT_CARDS.filter(c => c.cat === filter);
+
+      filtered.forEach(card => {
+        const isMastered = state.flippedCards.has(card.id);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flip-card h-72';
+        wrapper.innerHTML = `
+          <div class="flip-card-inner" id="card-inner-${card.id}">
+            <!-- FRONT -->
+            <div class="flip-card-front glass-card p-5 flex flex-col justify-between border-t-4 border-amber-500">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-500 font-bold">${card.badge}</span>
+                <span class="text-xs ${isMastered ? 'text-emerald-400' : 'text-slate-400'}">
+                  <i class="fa-solid ${isMastered ? 'fa-circle-check' : 'fa-rotate'}"></i>
+                </span>
+              </div>
+              <div class="my-auto text-center space-y-2.5">
+                <h3 class="text-base sm:text-lg font-extrabold leading-snug">${card.title}</h3>
+                <div class="inline-block px-3.5 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/40 font-mono text-xs sm:text-sm font-bold text-amber-400">
+                  ${card.mnemonic}
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">${card.frontHint}</p>
+              </div>
+              <div class="text-center text-[11px] font-semibold text-slate-400">
+                Tap card to decode <i class="fa-solid fa-arrow-right-arrow-left ml-1"></i>
+              </div>
+            </div>
+
+            <!-- BACK -->
+            <div class="flip-card-back glass-card p-5 flex flex-col justify-between border-t-4 border-emerald-500 bg-slate-900/95 text-slate-100">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span class="text-xs font-extrabold text-emerald-400">${card.mnemonic}</span>
+                <span class="text-[10px] font-mono text-slate-400">VisionIAS QRM</span>
+              </div>
+              <ul class="space-y-1.5 text-xs leading-snug my-auto overflow-y-auto pr-1">
+                ${card.backDetails.map(line => `<li class="flex items-start gap-1.5"><span class="text-emerald-400 mt-0.5">&bull;</span><span>${line}</span></li>`).join('')}
+              </ul>
+              <div class="text-center text-[11px] text-emerald-400 font-semibold pt-1">
+                Tap to flip back
+              </div>
+            </div>
+          </div>
+        `;
+        wrapper.addEventListener('click', () => {
+          wrapper.classList.toggle('flipped');
+          if (!state.flippedCards.has(card.id)) {
+            state.flippedCards.add(card.id);
+            addXP(15, `Decoded: ${card.title}`);
+          }
+        });
+        grid.appendChild(wrapper);
+      });
+    }
+
+    function filterVault(cat) {
+      document.querySelectorAll('.vault-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-amber-500', 'text-slate-950', 'font-bold');
+        btn.classList.add('bg-slate-200', 'dark:bg-slate-800');
+      });
+      event.target.classList.remove('bg-slate-200', 'dark:bg-slate-800');
+      event.target.classList.add('bg-amber-500', 'text-slate-950', 'font-bold');
+      renderVault(cat);
+    }
+
+    // ==================== DATA 2: PRELIMS ELIMINATION ARENA (18 UPSC MCQs) ====================
+    const ARENA_QUESTIONS = [
+      {
+        topic: "National Income & Stats",
+        q: "Consider the following statements regarding National Income accounting in India:\n1. GDP at Market Price is always greater than GNP at Market Price for India.\n2. Net National Product at Factor Cost is equivalent to National Income.\n3. Transfer payments like old-age pensions and scholarships are excluded from National Income.\n\nWhich of the statements given above are correct?",
+        options: ["1 and 2 only", "2 and 3 only", "1 and 3 only", "1, 2 and 3"],
+        ans: 1,
+        trick: "Spot the extreme word 'always' in Statement 1! While India's NFIA is usually negative, it is not 'always' so by definition. Eliminating 1 leaves ONLY Option B!",
+        exp: "Statement 1 is incorrect because GNP = GDP + NFIA; although NFIA is typically negative for India, it is not 'always' negative. NNP at Factor Cost = National Income (Statement 2). Transfer payments involve no goods/services produced and are excluded (Statement 3)."
+      },
+      {
+        topic: "Monetary Policy & Banking",
+        q: "With reference to Money Supply aggregates in India, consider the following statements:\n1. M1 is the most liquid measure of money supply and includes currency with the public and demand deposits.\n2. M3 (Broad Money) includes M1 plus net time deposits with commercial banks and total deposits with Post Office savings organizations.\n3. Currency notes of all denominations in India are issued by the Reserve Bank of India.\n\nWhich of the statements given above is/are correct?",
+        options: ["1 only", "1 and 2 only", "2 and 3 only", "1, 2 and 3"],
+        ans: 0,
+        trick: "Two classic UPSC traps: M3 does NOT include Post Office deposits (M2 and M4 do), and ₹1 notes + coins are issued by the Ministry of Finance (GoI), not RBI!",
+        exp: "Only Statement 1 is correct. M3 = M1 + Net Time Deposits of Commercial Banks (NO Post Office). Also, under the Coinage Act, coins and ₹1 notes are issued by the Government of India (signed by Finance Secretary)."
+      },
+      {
+        topic: "Monetary Policy & Banking",
+        q: "Which of the following actions by the Reserve Bank of India will lead to an increase in the Money Multiplier?\n1. Reduction in Cash Reserve Ratio (CRR)\n2. Increase in Statutory Liquidity Ratio (SLR)\n3. Increased preference of the public to hold cash rather than bank deposits\n\nSelect the correct answer using the code given below:",
+        options: ["1 only", "1 and 2 only", "2 and 3 only", "1, 2 and 3"],
+        ans: 0,
+        trick: "Money Multiplier m = (1 + c) / (c + r). If public holds more cash (c increases) or reserves (r) increase, banks have less money to lend and multiply!",
+        exp: "Only Statement 1 is correct. Lowering CRR leaves banks with more loanable funds, increasing credit creation. Increasing SLR or higher currency-drain (cash holding by public) shrinks the money multiplier."
+      },
+      {
+        topic: "Inflation & Unemployment",
+        q: "Consider the following pairs of Price Indices and their releasing authorities in India:\n1. Consumer Price Index (Industrial Workers) : Labour Bureau\n2. Consumer Price Index (Combined) : National Statistical Office (NSO)\n3. Wholesale Price Index (WPI) : Office of the Economic Adviser\n\nHow many of the pairs given above are correctly matched?",
+        options: ["Only one", "Only two", "All three", "None"],
+        ans: 2,
+        trick: "Remember the split: Worker/Labour CPIs (IW, AL, RL) go to Labour Bureau; General CPI (R/U/C) goes to NSO (MoSPI); WPI goes to Office of Economic Adviser (DPIIT).",
+        exp: "All three pairs are correctly matched as per VisionIAS QRM: CPI-IW (Base 2016) by Labour Bureau; CPI-Combined (Base 2012) by NSO; WPI (Base 2011-12) by Office of Economic Adviser."
+      },
+      {
+        topic: "Inflation & Unemployment",
+        q: "Which of the following best describes 'Phillips Curve' and 'Stagflation' in macroeconomics?\n1. The Phillips Curve depicts a direct positive relationship between the rate of inflation and the rate of unemployment.\n2. Stagflation refers to a rare economic situation characterized by stagnant growth, high unemployment, and high inflation simultaneously.\n\nSelect the correct answer using the code given below:",
+        options: ["1 only", "2 only", "Both 1 and 2", "Neither 1 nor 2"],
+        ans: 1,
+        trick: "Phillips Curve shows an INVERSE trade-off (lower unemployment = higher inflation). Stagflation breaks the Phillips Curve!",
+        exp: "Statement 1 is incorrect because the Phillips Curve shows an inverse relationship between inflation and unemployment. Statement 2 accurately defines Stagflation."
+      },
+      {
+        topic: "Budget & Taxation",
+        q: "Under the Constitutional provisions governing Government Accounts in India, which of the following statements is/are correct?\n1. Withdrawals from the Public Account of India require prior authorization from Parliament.\n2. The Contingency Fund of India is placed at the disposal of the President and is operated by the Finance Secretary.\n3. All grants given by the Union Government to State Governments are treated as Capital Expenditure in the Union Budget.\n\nSelect the correct answer using the code given below:",
+        options: ["1 and 2 only", "2 only", "2 and 3 only", "1, 2 and 3"],
+        ans: 1,
+        trick: "Two huge UPSC traps: Public Account [Art 266(2)] needs NO prior Parliament nod (govt is merely a banker), and grants to States are treated as REVENUE Expenditure even if used to create assets!",
+        exp: "Only Statement 2 is correct. Public Account requires no prior parliamentary appropriation. Grants to States are classified as Revenue Expenditure (though Effective Capital Expenditure includes grants for creation of capital assets)."
+      },
+      {
+        topic: "Budget & Taxation",
+        q: "Which of the following items are excluded from the Goods and Services Tax (GST) regime in India?\n1. Alcohol for human consumption\n2. Petroleum crude and High-speed diesel\n3. Electricity\n4. Real estate / stamp duty on land\n\nSelect the correct answer using the code given below:",
+        options: ["1 and 2 only", "1, 2 and 3 only", "2, 3 and 4 only", "1, 2, 3 and 4"],
+        ans: 3,
+        trick: "Alcohol for human consumption is constitutionally outside GST; 5 petroleum products are temporarily kept out until GST Council decides; Electricity & Land/Real Estate remain under State taxes.",
+        exp: "All four items are currently outside GST and continue to attract State Excise/VAT/Electricity Duty/Stamp Duty."
+      },
+      {
+        topic: "External Sector & WTO",
+        q: "Consider the following statements regarding the Balance of Payments (BoP) of India:\n1. Remittances sent by Indians working abroad are recorded under the Capital Account of BoP.\n2. Foreign Portfolio Investment (FPI) is generally more volatile than Foreign Direct Investment (FDI).\n3. Devaluation of domestic currency always improves the Balance of Trade regardless of the elasticity of exports and imports.\n\nWhich of the statements given above is/are correct?",
+        options: ["1 and 2 only", "2 only", "2 and 3 only", "1, 2 and 3"],
+        ans: 1,
+        trick: "Remittances are unilateral transfers -> Current Account! And 'always' in Statement 3 violates the Marshall-Lerner Condition (sum of elasticities must exceed 1).",
+        exp: "Only Statement 2 is correct. Private transfers/remittances belong to the Current Account (Invisibles). Devaluation improves trade balance only if the Marshall-Lerner condition holds."
+      },
+      {
+        topic: "External Sector & WTO",
+        q: "With reference to the World Bank Group, India is a member of which of the following institutions?\n1. International Bank for Reconstruction and Development (IBRD)\n2. International Development Association (IDA)\n3. Multilateral Investment Guarantee Agency (MIGA)\n4. International Centre for Settlement of Investment Disputes (ICSID)\n\nSelect the correct answer using the code given below:",
+        options: ["1, 2 and 3 only", "1, 2 and 4 only", "2, 3 and 4 only", "1, 2, 3 and 4"],
+        ans: 0,
+        trick: "India is a member of 4 out of 5 World Bank Group bodies—India explicitly stayed out of ICSID because its arbitration rules favor foreign investors over host states.",
+        exp: "India is a member of IBRD, IDA, IFC, and MIGA, but NOT a member of ICSID."
+      },
+      {
+        topic: "External Sector & WTO",
+        q: "In the context of WTO's Agreement on Agriculture (AoA), subsidies that are tied to production-limiting programs (such as quotas or land set-asides) fall under which box?",
+        options: ["Green Box", "Amber Box", "Blue Box", "Red Box"],
+        ans: 2,
+        trick: "Think 'Blue = Amber with limits/quotas'. Also remember: WTO AoA has NO Red Box!",
+        exp: "Blue Box covers subsidies tied to programs that limit production (quotas/acreage limits). Green Box is non-distorting; Amber Box is trade-distorting; there is no Red Box in AoA."
+      },
+      {
+        topic: "Agriculture & Infrastructure",
+        q: "Consider the following statements regarding Minimum Support Price (MSP) in India:\n1. MSP is recommended by the Commission for Agricultural Costs and Prices (CACP) and finally approved by the Cabinet Committee on Economic Affairs (CCEA).\n2. Currently, MSP is announced for 23 crops including Sugarcane.\n3. In calculating MSP, CACP considers only the A2+FL cost and completely ignores C2 cost.\n\nWhich of the statements given above is/are correct?",
+        options: ["1 only", "1 and 2 only", "2 and 3 only", "1, 2 and 3"],
+        ans: 0,
+        trick: "Trap in Statement 2: Sugarcane gets Fair and Remunerative Price (FRP), not MSP (though counted in the 23 mandated crops, technically 22 MSP + 1 FRP)! And CACP considers both A2+FL and C2 as reference.",
+        exp: "Statement 1 is correct. Technically, MSP is fixed for 22 mandated crops and Fair & Remunerative Price (FRP) for Sugarcane. CACP considers A2+FL for fixing (1.5x rule) while also factoring C2 as a benchmark."
+      },
+      {
+        topic: "Agriculture & Infrastructure",
+        q: "Arrange the following core industries in descending order of their weightage in the Index of Industrial Production (IIP):\n1. Electricity\n2. Steel\n3. Refinery Products\n4. Coal\n\nSelect the correct code:",
+        options: ["3 - 1 - 2 - 4", "3 - 2 - 1 - 4", "1 - 3 - 2 - 4", "3 - 1 - 4 - 2"],
+        ans: 0,
+        trick: "Use mnemonic RE-SC-CN-CF: Refinery (28.04%) > Electricity (19.85%) > Steel (17.92%) > Coal (10.33%).",
+        exp: "The correct descending weightage order is Refinery Products (28.04%) > Electricity (19.85%) > Steel (17.92%) > Coal (10.33%)."
+      },
+      {
+        topic: "Monetary Policy & Banking",
+        q: "Which of the following statements regarding the Monetary Policy Committee (MPC) of India is/are correct?\n1. It was constituted under the amended RBI Act, 1934 based on the recommendations of the Urjit Patel Committee.\n2. It consists of 6 members—3 from the RBI and 3 nominated by the Central Government.\n3. The RBI Governor enjoys a veto power over the decisions of the MPC.\n\nSelect the correct answer using the code given below:",
+        options: ["1 and 2 only", "2 and 3 only", "1 and 3 only", "1, 2 and 3"],
+        ans: 0,
+        trick: "RBI Governor does NOT have veto power! Each member has 1 vote, and the Governor has a second/casting vote ONLY in the event of a tie.",
+        exp: "Statements 1 and 2 are correct. Statement 3 is incorrect because decisions are taken by majority vote, and the Governor exercises a casting vote only in case of a tie."
+      },
+      {
+        topic: "Budget & Taxation",
+        q: "Match the following Committees with their respective mandates:\n1. N.K. Singh Committee : FRBM Review\n2. P.J. Nayak Committee : Governance of Boards of Banks in India\n3. Tarapore Committee : Capital Account Convertibility\n4. Rangarajan Committee : Poverty Estimation Methodology\n\nHow many of the above pairs are correctly matched?",
+        options: ["Only two", "Only three", "All four", "Only one"],
+        ans: 2,
+        trick: "All four are high-frequency VisionIAS QRM committees: NK Singh (60% Debt-to-GDP), PJ Nayak (Bank Board Bureau), Tarapore (CAC), Rangarajan (Poverty).",
+        exp: "All four pairs are accurately matched from the VisionIAS Quick Revision Module."
+      },
+      {
+        topic: "National Income & Stats",
+        q: "If a country experiences 'Jobless Growth', which of the following is observed?",
+        options: [
+          "GDP grows primarily due to capital-intensive and productivity-led sectors without proportional employment generation",
+          "GDP declines while employment rate rises sharply",
+          "Both GDP and inflation fall simultaneously into negative territory",
+          "Frictional unemployment completely disappears from the economy"
+        ],
+        ans: 0,
+        trick: "Jobless Growth = High GDP output growth driven by technology/capital efficiency rather than labor absorption.",
+        exp: "Jobless growth occurs when the economy expands (rising GDP) due to productivity/capital-intensive services and manufacturing without creating commensurate new jobs."
+      },
+      {
+        topic: "External Sector & WTO",
+        q: "Consider the following statements regarding Special Drawing Rights (SDR) of the IMF:\n1. SDR is a physical currency printed and circulated by the IMF for international trade.\n2. The SDR basket currently consists of US Dollar, Euro, Chinese Renminbi, Japanese Yen, and British Pound.\n3. India's Reserve Tranche Position (RTP) with the IMF is counted as part of India's Foreign Exchange Reserves.\n\nWhich of the statements given above are correct?",
+        options: ["1 and 2 only", "2 and 3 only", "1 and 3 only", "1, 2 and 3"],
+        ans: 1,
+        trick: "SDR is 'Paper Gold'—an international reserve asset/unit of account, NOT a physical currency!",
+        exp: "Statements 2 and 3 are correct. SDR is neither a currency nor a claim on the IMF, but a potential claim on the freely usable currencies of IMF members. India's Forex Reserves = FCA + Gold + SDR + RTP."
+      },
+      {
+        topic: "Agriculture & Infrastructure",
+        q: "Which of the following are the four core pillars of Subhash Palekar's Zero Budget Natural Farming (ZBNF)?",
+        options: [
+          "Beejamrutham, Jeevamrutham, Mulching, Waaphasa",
+          "Hydroponics, Aeroponics, Fertigation, Drip Irrigation",
+          "Urea Coating, Nano-DAP, Soil Health Card, Kisan Credit Card",
+          "Crop Rotation, Contract Farming, e-NAM, Warehouse Receipts"
+        ],
+        ans: 0,
+        trick: "Mnemonic B-J-M-W: Beejamrutham (seed), Jeevamrutham (microbes), Mulching (cover), Waaphasa (soil air-water balance).",
+        exp: "The 4 pillars of ZBNF are Beejamrutham, Jeevamrutham, Acchadana (Mulching), and Waaphasa."
+      },
+      {
+        topic: "Monetary Policy & Banking",
+        q: "When the RBI conducts an 'Operation Twist', what does it simultaneously execute?",
+        options: [
+          "Simultaneous purchase of long-term government securities and sale of short-term treasury bills",
+          "Simultaneous hike in Repo Rate and cut in Reverse Repo Rate",
+          "Buying US Dollars in spot market and selling Gold in forward market",
+          "Converting SLR bonds into Cash Reserve Ratio balances"
+        ],
+        ans: 0,
+        trick: "Operation Twist 'twists' the yield curve: buying long-term G-Secs pushes long-term yields DOWN (cheaper infra/home loans) while selling short-term T-Bills keeps overall liquidity neutral!",
+        exp: "Operation Twist involves simultaneous Open Market Operation (OMO) purchase of long-end G-Secs and sale of short-end T-Bills to compress long-term interest rates without expanding net liquidity."
+      }
+    ];
+
+    function resetArena() {
+      clearInterval(state.arena.timerId);
+      const topic = document.getElementById('arena-topic').value;
+      const pool = topic === 'ALL' ? [...ARENA_QUESTIONS] : ARENA_QUESTIONS.filter(q => q.topic === topic);
+      state.arena.questions = pool;
+      state.arena.index = 0;
+      state.arena.score = 0;
+      state.arena.correct = 0;
+      state.arena.wrong = 0;
+      state.arena.skipped = 0;
+      updateArenaStats();
+      loadArenaQuestion();
+    }
+
+    function updateArenaStats() {
+      document.getElementById('arena-score').textContent = state.arena.score.toFixed(2);
+      document.getElementById('arena-correct').textContent = state.arena.correct;
+      document.getElementById('arena-wrong').textContent = state.arena.wrong;
+      document.getElementById('arena-skipped').textContent = state.arena.skipped;
+    }
+
+    function toggleArenaTimer() {
+      state.arena.timerEnabled = !state.arena.timerEnabled;
+      document.getElementById('arena-timer-label').textContent = state.arena.timerEnabled ? 'Timer: ON (72s)' : 'Timer: OFF';
+      if (!state.arena.timerEnabled) {
+        clearInterval(state.arena.timerId);
+        document.getElementById('arena-clock').textContent = '∞';
+      } else {
+        startQuestionTimer();
+      }
+    }
+
+    function startQuestionTimer() {
+      clearInterval(state.arena.timerId);
+      if (!state.arena.timerEnabled) {
+        document.getElementById('arena-clock').textContent = '∞';
+        return;
+      }
+      state.arena.timeLeft = 72;
+      document.getElementById('arena-clock').textContent = `${state.arena.timeLeft}s`;
+      state.arena.timerId = setInterval(() => {
+        state.arena.timeLeft--;
+        document.getElementById('arena-clock').textContent = `${state.arena.timeLeft}s`;
+        if (state.arena.timeLeft <= 0) {
+          clearInterval(state.arena.timerId);
+          if (!state.arena.answered) {
+            showToast("Time's up! Auto-skipped (0 marks).", 'rose');
+            skipQuestion();
+          }
+        }
+      }, 1000);
+    }
+
+    function loadArenaQuestion() {
+      if (state.arena.index >= state.arena.questions.length) {
+        clearInterval(state.arena.timerId);
+        document.getElementById('arena-card').innerHTML = `
+          <div class="text-center py-8 space-y-4">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-amber-500/20 text-amber-500 flex items-center justify-center text-3xl">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold">Prelims Mock Completed!</h3>
+            <p class="text-sm text-slate-400">Net UPSC Score: <span class="text-amber-500 font-mono font-extrabold text-lg">${state.arena.score.toFixed(2)}</span> / ${(state.arena.questions.length * 2).toFixed(2)}</p>
+            <div class="flex justify-center gap-4 text-xs font-bold">
+              <span class="text-emerald-400">Correct: ${state.arena.correct}</span>
+              <span class="text-rose-400">Wrong: ${state.arena.wrong}</span>
+              <span class="text-slate-400">Skipped: ${state.arena.skipped}</span>
+            </div>
+            <button onclick="location.reload()" class="px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-extrabold text-xs">Reset All & Play Again</button>
+          </div>
+        `;
+        return;
+      }
+
+      const item = state.arena.questions[state.arena.index];
+      state.arena.answered = false;
+      document.getElementById('q-tag').textContent = item.topic;
+      document.getElementById('q-progress').textContent = `Question ${state.arena.index + 1} of ${state.arena.questions.length}`;
+      document.getElementById('q-text').textContent = item.q;
+      document.getElementById('hint-box').classList.add('hidden');
+      document.getElementById('hint-box').innerHTML = `<strong><i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> Elimination Shortcut:</strong> ${item.trick}`;
+      document.getElementById('q-explanation').classList.add('hidden');
+      document.getElementById('next-q-btn').classList.add('hidden');
+      document.getElementById('skip-btn').classList.remove('hidden');
+
+      const optsContainer = document.getElementById('q-options');
+      optsContainer.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+      item.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn w-full text-left p-3.5 rounded-xl bg-slate-200/60 dark:bg-slate-900/80 hover:bg-amber-500/15 border border-slate-300/40 dark:border-slate-800 text-xs sm:text-sm font-medium flex items-center gap-3 transition';
+        btn.innerHTML = `<span class="w-7 h-7 rounded-lg bg-slate-300/70 dark:bg-slate-800 flex items-center justify-center font-mono font-bold text-xs">${letters[idx]}</span><span>${opt}</span>`;
+        btn.onclick = () => selectArenaOption(idx, btn);
+        optsContainer.appendChild(btn);
+      });
+
+      startQuestionTimer();
+    }
+
+    function revealEliminationHint() {
+      document.getElementById('hint-box').classList.remove('hidden');
+    }
+
+    function selectArenaOption(selectedIdx, btnEl) {
+      if (state.arena.answered) return;
+      state.arena.answered = true;
+      clearInterval(state.arena.timerId);
+
+      const item = state.arena.questions[state.arena.index];
+      const allBtns = document.querySelectorAll('.opt-btn');
+
+      allBtns.forEach((b, i) => {
+        b.disabled = true;
+        if (i === item.ans) {
+          b.classList.remove('bg-slate-200/60', 'dark:bg-slate-900/80');
+          b.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300', 'font-bold');
+        }
+      });
+
+      if (selectedIdx === item.ans) {
+        state.arena.score += 2.0;
+        state.arena.correct++;
+        updateStreak(true);
+        addXP(25, 'Prelims MCQ Correct (+2.00)');
+      } else {
+        state.arena.score -= 0.66;
+        state.arena.wrong++;
+        updateStreak(false);
+        btnEl.classList.remove('bg-slate-200/60', 'dark:bg-slate-900/80');
+        btnEl.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+        showToast('Negative Marking Applied (-0.66)', 'rose');
+      }
+
+      updateArenaStats();
+      const expBox = document.getElementById('q-explanation');
+      expBox.innerHTML = `
+        <div class="font-bold text-emerald-400"><i class="fa-solid fa-book-open mr-1"></i> VisionIAS QRM Explanation:</div>
+        <p class="text-slate-300 leading-relaxed">${item.exp}</p>
+      `;
+      expBox.classList.remove('hidden');
+      document.getElementById('skip-btn').classList.add('hidden');
+      document.getElementById('next-q-btn').classList.remove('hidden');
+    }
+
+    function skipQuestion() {
+      if (state.arena.answered) return;
+      clearInterval(state.arena.timerId);
+      state.arena.skipped++;
+      updateStreak(false);
+      updateArenaStats();
+      state.arena.index++;
+      loadArenaQuestion();
+    }
+
+    function nextQuestion() {
+      state.arena.index++;
+      loadArenaQuestion();
+    }
+
+    // ==================== MODULE 3: SIMULATORS ====================
+    function updateNationalIncome() {
+      const gdpmp = Number(document.getElementById('in-gdpmp').value);
+      const dep = Number(document.getElementById('in-dep').value);
+      const nfia = Number(document.getElementById('in-nfia').value);
+      const it = Number(document.getElementById('in-it').value);
+      const sub = Number(document.getElementById('in-sub').value);
+
+      document.getElementById('val-gdpmp').textContent = gdpmp;
+      document.getElementById('val-dep').textContent = dep;
+      document.getElementById('val-nfia').textContent = (nfia >= 0 ? `+₹${nfia}` : `-₹${Math.abs(nfia)}`);
+      document.getElementById('val-it').textContent = it;
+      document.getElementById('val-sub').textContent = sub;
+
+      const nit = it - sub;
+      const ndpmp = gdpmp - dep;
+      const gnpmp = gdpmp + nfia;
+      const gdpfc = gdpmp - nit;
+      const nnpfc = gnpmp - dep - nit;
+
+      document.getElementById('out-nit').textContent = `₹${nit} Lakh Cr`;
+      document.getElementById('out-ndpmp').textContent = `₹${ndpmp} Lakh Cr`;
+      document.getElementById('out-gnpmp').textContent = `₹${gnpmp} Lakh Cr`;
+      document.getElementById('out-gdpfc').textContent = `₹${gdpfc} Lakh Cr`;
+      document.getElementById('out-nnpfc').textContent = `₹${nnpfc} Lakh Cr`;
+    }
+
+    function updateMoneyMultiplier() {
+      const crr = Number(document.getElementById('in-crr').value);
+      const r = crr / 100;
+      const mult = (1 / r).toFixed(2);
+      const totalMoney = Math.round(1000 / r);
+
+      document.getElementById('val-crr').textContent = crr;
+      document.getElementById('val-mult').textContent = mult;
+      document.getElementById('out-total-money').textContent = `₹${totalMoney.toLocaleString('en-IN')}`;
+
+      const banks = ['1. Union Bank (UBI)', '2. State Bank (SBI)', '3. Bank of Baroda', '4. Bank of India'];
+      let deposit = 1000;
+      const tbody = document.getElementById('multiplier-table-body');
+      tbody.innerHTML = '';
+
+      banks.forEach(bank => {
+        const reserve = deposit * r;
+        const loan = deposit - reserve;
+        tbody.innerHTML += `
+          <tr>
+            <td class="p-2.5 font-sans font-semibold">${bank}</td>
+            <td class="p-2.5 text-amber-400">₹${deposit.toFixed(1)}</td>
+            <td class="p-2.5 text-rose-400">₹${reserve.toFixed(1)}</td>
+            <td class="p-2.5 text-emerald-400">₹${loan.toFixed(1)}</td>
+          </tr>
+        `;
+        deposit = loan;
+      });
+    }
+
+    // Macro Policy Lever Scenarios
+    const CRISIS_SCENARIOS = [
+      {
+        title: "Crisis 1: Demand-Pull Inflation Surge (CPI at 7.4%)",
+        desc: "Excess liquidity and surging consumer credit have pushed CPI above the RBI's upper tolerance limit of 6%. As RBI Governor, what is your primary contractionary (Hawkish) move?",
+        options: [
+          { text: "Hike Policy Repo Rate & SDF Rate to absorb liquidity", correct: true, exp: "Spot on! Raising Repo Rate makes commercial bank borrowing costlier, raising lending rates and cooling aggregate demand." },
+          { text: "Cut CRR by 150 bps and conduct OMO bond purchases", correct: false, exp: "Incorrect! Cutting CRR and buying G-Secs injects MORE liquidity, worsening demand-pull inflation." },
+          { text: "Expand Fiscal Deficit by cutting corporate & income taxes", correct: false, exp: "Pro-cyclical fiscal expansion will further fuel demand-side inflation." },
+          { text: "Lower SLR to encourage banks to lend aggressively", correct: false, exp: "Lowering SLR boosts credit creation, which is expansionary (Dovish), not anti-inflationary." }
+        ]
+      },
+      {
+        title: "Crisis 2: Severe Economic Slowdown & Liquidity Crunch",
+        desc: "GDP growth has slipped to 4.2%, private investment is frozen, and banks are reluctant to lend. How do RBI and the Finance Ministry execute coordinated Counter-Cyclical Stimulus?",
+        options: [
+          { text: "Cut Repo Rate + OMO Purchase of G-Secs + Boost Public Capex", correct: true, exp: "Correct! Dovish monetary policy (rate cuts + OMO liquidity injection) paired with capital expenditure multiplier revives growth." },
+          { text: "Increase CRR and issue Cash Management Bills (CMBs)", correct: false, exp: "Wrong! Both actions drain liquidity from the banking system." },
+          { text: "Freeze MGNREGA wages and raise GST slabs across essentials", correct: false, exp: "Contractionary fiscal austerity during a downturn deepens recession." },
+          { text: "Hike Marginal Standing Facility (MSF) rate by 200 bps", correct: false, exp: "Raising MSF penalizes banks needing overnight liquidity." }
+        ]
+      },
+      {
+        title: "Crisis 3: Stagflation (High Fuel/Food Inflation + Falling GDP)",
+        desc: "Global crude oil spike has triggered cost-push inflation (6.8%) alongside falling industrial output (IIP). Aggressive rate hikes risk killing growth. What is the balanced policy mix?",
+        options: [
+          { text: "Targeted Supply-Side Fiscal cuts (excise duty cut on fuel, buffer stock release) + Calibrated RBI stance", correct: true, exp: "Exact VisionIAS QRM insight! Cost-push inflation requires supply-side fiscal/administrative measures rather than blunt demand destruction." },
+          { text: "Print money (Monetize Deficit) to fund universal cash handouts", correct: false, exp: "Deficit monetization during high inflation triggers hyperinflationary expectations." },
+          { text: "Ban all agricultural exports permanently and raise CRR to 15%", correct: false, exp: "Extreme monetary tightening during a slowdown causes deep recession." },
+          { text: "Devalue the Rupee sharply by 25% overnight", correct: false, exp: "Rupee depreciation makes imported crude oil even costlier (imported inflation)!" }
+        ]
+      },
+      {
+        title: "Crisis 4: Excess Overnight Liquidity Despite Zero Standing Repo Borrowings",
+        desc: "Banks are flush with surplus cash, and the RBI wants to absorb overnight liquidity WITHOUT providing government securities (G-Secs) as collateral. Which tool introduced in 2022 should RBI use?",
+        options: [
+          { text: "Standing Deposit Facility (SDF)", correct: true, exp: "Bullseye! SDF allows RBI to absorb liquidity from commercial banks without pledging G-Sec collateral, acting as the floor of the LAF corridor." },
+          { text: "Marginal Standing Facility (MSF)", correct: false, exp: "MSF is for banks to BORROW overnight from RBI (ceiling of LAF corridor), not deposit." },
+          { text: "Ways and Means Advances (WMA)", correct: false, exp: "WMA is a temporary credit facility for Central and State governments to bridge revenue-expenditure mismatches." },
+          { text: "Long-Term Repo Operations (LTRO)", correct: false, exp: "LTRO injects 1-to-3 year liquidity into banks at the repo rate." }
+        ]
+      },
+      {
+        title: "Crisis 5: Rupee Volatility & Speculative Capital Outflows",
+        desc: "US Fed rate hikes have triggered FPI outflows, putting downward pressure on the INR and threatening imported inflation. How does RBI stabilize the Rupee?",
+        options: [
+          { text: "Sell US Dollars from Forex Reserves in spot/forward markets & ease FPI debt limits", correct: true, exp: "Correct! Under India's Managed Float regime, RBI sells USD to curb excessive volatility while attracting stable capital inflows." },
+          { text: "Buy US Dollars aggressively in the spot market", correct: false, exp: "Buying USD increases demand for Dollars and weakens the Rupee further!" },
+          { text: "Cut domestic interest rates to zero", correct: false, exp: "Zero domestic rates widen the interest differential with the US, accelerating FPI outflows." },
+          { text: "Impose 100% tax on NRI remittances", correct: false, exp: "Remittances stabilize India's Current Account and support the Rupee." }
+        ]
+      }
+    ];
+
+    function loadCrisis() {
+      const c = CRISIS_SCENARIOS[state.crisisIndex];
+      document.getElementById('crisis-counter').textContent = `Scenario ${state.crisisIndex + 1} / ${CRISIS_SCENARIOS.length}`;
+      document.getElementById('crisis-title').textContent = c.title;
+      document.getElementById('crisis-desc').textContent = c.desc;
+      document.getElementById('crisis-feedback').classList.add('hidden');
+      document.getElementById('next-crisis-btn').classList.add('hidden');
+
+      const box = document.getElementById('crisis-options');
+      box.innerHTML = '';
+      c.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'crisis-btn text-left p-3.5 rounded-xl bg-slate-200/60 dark:bg-slate-900/80 hover:bg-amber-500/15 border border-slate-300/40 dark:border-slate-800 text-xs sm:text-sm font-semibold transition';
+        btn.textContent = opt.text;
+        btn.onclick = () => {
+          document.querySelectorAll('.crisis-btn').forEach(b => b.disabled = true);
+          const fb = document.getElementById('crisis-feedback');
+          fb.classList.remove('hidden');
+          if (opt.correct) {
+            btn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+            fb.className = 'p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm';
+            fb.innerHTML = `<strong><i class="fa-solid fa-circle-check mr-1"></i> Optimal Policy Executed:</strong> ${opt.exp}`;
+            addXP(30, 'Macro Crisis Resolved');
+          } else {
+            btn.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+            fb.className = 'p-4 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs sm:text-sm';
+            fb.innerHTML = `<strong><i class="fa-solid fa-circle-xmark mr-1"></i> Policy Backfired:</strong> ${opt.exp}`;
+          }
+          document.getElementById('next-crisis-btn').classList.remove('hidden');
+        };
+        box.appendChild(btn);
+      });
+    }
+
+    function nextCrisis() {
+      state.crisisIndex = (state.crisisIndex + 1) % CRISIS_SCENARIOS.length;
+      loadCrisis();
+    }
+
+    // ==================== MODULE 4: RAPID-FIRE MINI GAMES ====================
+    const SORT_DATA = {
+      CORE: {
+        prompt: "Arrange the 8 Core Industries from HIGHEST weight (28.04%) to LOWEST weight (2.63%):",
+        order: ["Refinery Products", "Electricity", "Steel", "Coal", "Crude Oil", "Natural Gas", "Cement", "Fertilizers"]
+      },
+      MONEY: {
+        prompt: "Arrange Monetary Aggregates from MOST LIQUID to LEAST LIQUID:",
+        order: ["M1 (CU + DD)", "M2 (M1 + PO Savings)", "M3 (Broad Money)", "M4 (M3 + Total PO)"]
+      },
+      INTEGRATION: {
+        prompt: "Arrange the 7 Stages of Economic Integration from LOWEST to HIGHEST integration:",
+        order: ["PTA", "FTA", "CECA / CEPA", "Customs Union", "Common Market", "Economic Union", "Monetary Union"]
+      }
+    };
+
+    function startSortGame(type) {
+      clearInterval(state.sortGame.timerId);
+      state.sortGame.type = type;
+      state.sortGame.selected = [];
+      state.sortGame.timeLeft = 30;
+      document.getElementById('sort-timer').textContent = '30';
+      document.getElementById('sort-prompt').textContent = SORT_DATA[type].prompt;
+      document.getElementById('sort-result').classList.add('hidden');
+
+      // Shuffle copy
+      state.sortGame.items = [...SORT_DATA[type].order].sort(() => Math.random() - 0.5);
+      renderSortUI();
+
+      state.sortGame.timerId = setInterval(() => {
+        state.sortGame.timeLeft--;
+        document.getElementById('sort-timer').textContent = state.sortGame.timeLeft;
+        if (state.sortGame.timeLeft <= 0) {
+          clearInterval(state.sortGame.timerId);
+          checkSortResult(true);
+        }
+      }, 1000);
+    }
+
+    function clearSortSelection() {
+      state.sortGame.selected = [];
+      document.getElementById('sort-result').classList.add('hidden');
+      renderSortUI();
+    }
+
+    function renderSortUI() {
+      const selBox = document.getElementById('sort-selected');
+      const poolBox = document.getElementById('sort-pool');
+      selBox.innerHTML = '';
+      poolBox.innerHTML = '';
+
+      state.sortGame.selected.forEach((item, idx) => {
+        const chip = document.createElement('button');
+        chip.className = 'px-3 py-1.5 rounded-lg bg-cyan-500 text-slate-950 text-xs font-bold flex items-center gap-1.5';
+        chip.innerHTML = `<span class="font-mono">${idx + 1}.</span> ${item} <i class="fa-solid fa-xmark text-[10px]"></i>`;
+        chip.onclick = () => {
+          state.sortGame.selected.splice(idx, 1);
+          renderSortUI();
+        };
+        selBox.appendChild(chip);
+      });
+
+      state.sortGame.items.forEach(item => {
+        if (!state.sortGame.selected.includes(item)) {
+          const chip = document.createElement('button');
+          chip.className = 'px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-amber-500/20 border border-slate-300/40 dark:border-slate-700 text-xs font-semibold transition';
+          chip.textContent = item;
+          chip.onclick = () => {
+            state.sortGame.selected.push(item);
+            renderSortUI();
+            if (state.sortGame.selected.length === SORT_DATA[state.sortGame.type].order.length) {
+              clearInterval(state.sortGame.timerId);
+              checkSortResult(false);
+            }
+          };
+          poolBox.appendChild(chip);
+        }
+      });
+    }
+
+    function checkSortResult(timedOut) {
+      const correctOrder = SORT_DATA[state.sortGame.type].order;
+      const isExact = JSON.stringify(state.sortGame.selected) === JSON.stringify(correctOrder);
+      const resBox = document.getElementById('sort-result');
+      resBox.classList.remove('hidden');
+
+      if (isExact && !timedOut) {
+        resBox.className = 'p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs';
+        resBox.innerHTML = `<strong><i class="fa-solid fa-circle-check mr-1"></i> Perfect Sequence!</strong> You nailed the exact VisionIAS order with ${state.sortGame.timeLeft}s left.`;
+        addXP(35, 'Sequence Sorter Cleared');
+      } else {
+        resBox.className = 'p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs';
+        resBox.innerHTML = `<strong><i class="fa-solid fa-circle-xmark mr-1"></i> ${timedOut ? "Time's Up!" : "Incorrect Order!"}</strong> Correct sequence: <span class="font-mono text-amber-300">${correctOrder.join(' > ')}</span>`;
+      }
+    }
+
+    // Trap Spotter Data (12 Statements)
+    const TRAP_STATEMENTS = [
+      { stmt: "All currency coins and ₹1 notes in India are issued by the Reserve Bank of India.", ans: false, exp: "TRAP! Under the Coinage Act, coins and ₹1 notes are issued by the Government of India (Ministry of Finance)." },
+      { stmt: "India is a member of IBRD, IDA, IFC, and MIGA, but is NOT a member of ICSID.", ans: true, exp: "TRUE! India stayed out of ICSID as its arbitration convention favors foreign investors over sovereign host nations." },
+      { stmt: "M3 (Broad Money) includes M1 plus Net Time Deposits with commercial banks and Post Office savings deposits.", ans: false, exp: "TRAP! M3 excludes Post Office deposits (M2 includes PO savings; M4 includes total PO deposits)." },
+      { stmt: "All grants given by the Union Government to State Governments are treated as Revenue Expenditure.", ans: true, exp: "TRUE! Technically, all grants to States are classified under Revenue Expenditure in the Union Budget." },
+      { stmt: "Wholesale Price Index (WPI) tracks price changes in both goods and services.", ans: false, exp: "TRAP! WPI covers ONLY goods (Primary Articles, Fuel & Power, Manufactured Products) — NO services!" },
+      { stmt: "Prior parliamentary approval is mandatory before withdrawing money from the Public Account of India [Art 266(2)].", ans: false, exp: "TRAP! Public Account funds belong to depositors (PF, small savings); Government acts as banker and needs NO prior Parliament nod." },
+      { stmt: "Commercial banks earn zero interest from the RBI on balances maintained under Cash Reserve Ratio (CRR).", ans: true, exp: "TRUE! RBI pays 0% interest on CRR balances, whereas banks earn interest on SLR securities." },
+      { stmt: "An agricultural loan for a short-duration crop becomes an NPA if overdue for 1 crop season.", ans: false, exp: "TRAP! Short-duration crop = 2 crop seasons; Long-duration crop = 1 crop season." },
+      { stmt: "The Hilton Young Commission (1926) recommended the establishment of the Reserve Bank of India.", ans: true, exp: "TRUE! Based on the Hilton Young Commission (Royal Commission on Indian Currency and Finance), RBI was set up in 1935." },
+      { stmt: "Refinery Products hold the highest weightage (28.04%) among the 8 Core Industries in IIP.", ans: true, exp: "TRUE! Refinery Products (28.04%) > Electricity (19.85%) > Steel (17.92%) > Coal (10.33%)." },
+      { stmt: "Under WTO's Agreement on Agriculture, Green Box subsidies are subject to strict De Minimis reduction limits.", ans: false, exp: "TRAP! Amber Box subsidies face De Minimis caps (5% developed / 10% developing). Green Box has NO upper limit." },
+      { stmt: "In India, the National Income is officially measured as Net National Product at Factor Cost (NNP_FC).", ans: true, exp: "TRUE! NNP at Factor Cost = GNP_MP - Depreciation - Net Indirect Taxes." }
+    ];
+
+    function loadTrapStatement() {
+      clearInterval(state.trapGame.timerId);
+      state.trapGame.locked = false;
+      state.trapGame.timeLeft = 15;
+      const item = TRAP_STATEMENTS[state.trapGame.index];
+
+      document.getElementById('trap-num').textContent = `Statement ${state.trapGame.index + 1} / ${TRAP_STATEMENTS.length}`;
+      document.getElementById('trap-statement').textContent = `"${item.stmt}"`;
+      document.getElementById('trap-timer').textContent = '15';
+      document.getElementById('trap-feedback').classList.add('hidden');
+
+      state.trapGame.timerId = setInterval(() => {
+        state.trapGame.timeLeft--;
+        document.getElementById('trap-timer').textContent = state.trapGame.timeLeft;
+        if (state.trapGame.timeLeft <= 0) {
+          clearInterval(state.trapGame.timerId);
+          answerTrap(null);
+        }
+      }, 1000);
+    }
+
+    function answerTrap(userAns) {
+      if (state.trapGame.locked) return;
+      state.trapGame.locked = true;
+      clearInterval(state.trapGame.timerId);
+
+      const item = TRAP_STATEMENTS[state.trapGame.index];
+      const fb = document.getElementById('trap-feedback');
+      fb.classList.remove('hidden');
+
+      if (userAns === item.ans) {
+        state.trapGame.score++;
+        document.getElementById('trap-score').textContent = state.trapGame.score;
+        fb.className = 'p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs leading-relaxed';
+        fb.innerHTML = `<strong><i class="fa-solid fa-shield-check mr-1"></i> Trap Avoided!</strong> ${item.exp}`;
+        addXP(15, 'Trap Spotter Hit');
+      } else {
+        fb.className = 'p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 text-xs leading-relaxed';
+        fb.innerHTML = `<strong><i class="fa-solid fa-skull-crossbones mr-1"></i> ${userAns === null ? "Time Out!" : "Caught in Examiner Trap!"}</strong> ${item.exp}`;
+      }
+
+      setTimeout(() => {
+        state.trapGame.index = (state.trapGame.index + 1) % TRAP_STATEMENTS.length;
+        loadTrapStatement();
+      }, 2800);
+    }
+
+    // ==================== MODULE 5: COMMITTEES & INDICES TABLE ====================
+    const COMMITTEES_DATA = [
+      { name: "Hilton Young Commission (1926)", domain: "Central Banking", detail: "Recommended creation of RBI (established April 1, 1935 under RBI Act 1934)." },
+      { name: "Narasimham Committee I & II", domain: "Banking Reforms (1991 & 1998)", detail: "SLR/CRR reduction, Asset Reconstruction Companies (ARCs), Narrow Banking, Capital Adequacy." },
+      { name: "P.J. Nayak Committee (2014)", domain: "PSB Governance", detail: "Recommended Banks Board Bureau (BBB) — now FSIB — and reducing govt stake below 50%." },
+      { name: "Urjit Patel Committee (2014)", domain: "Monetary Policy", detail: "Recommended CPI-Combined as nominal anchor (4% ± 2%) and 6-member Monetary Policy Committee (MPC)." },
+      { name: "N.K. Singh Committee (2017)", domain: "FRBM Review", detail: "Recommended Debt-to-GDP target of 60% (40% Centre + 20% States) and Fiscal Deficit glide path." },
+      { name: "Vijay Kelkar Committee", domain: "Taxation & PPP", detail: "GST roadmap (Task Force on Indirect Taxes) and revisiting Public-Private Partnership (PPP) model." },
+      { name: "Raja Chelliah Committee (1991)", domain: "Tax Reforms", detail: "Rationalization of Direct & Indirect taxes, lowering peak customs/income tax rates." },
+      { name: "Tarapore Committee (1997 & 2006)", domain: "External Sector", detail: "Roadmap for Fuller Capital Account Convertibility (CAC) subject to fiscal & inflation preconditions." },
+      { name: "Rangarajan Committee (2014)", domain: "Poverty & Disinvestment", detail: "Revised poverty line basket (calorie + protein + fat) and PSU disinvestment strategy." },
+      { name: "Bibek Debroy Committee", domain: "Indian Railways", detail: "Recommended separate Railway Budget merger with Union Budget (implemented in 2017) & private entry." },
+      { name: "Rakesh Mohan Committee", domain: "Infrastructure & Transport", detail: "National Transport Development Policy & commercialization of infrastructure projects." },
+      { name: "CPI-IW (Industrial Workers)", domain: "Base Year: 2016", detail: "Compiled & released by Labour Bureau (Ministry of Labour & Employment). Used for Dearness Allowance." },
+      { name: "CPI-AL & CPI-RL", domain: "Base Year: 1986-87", detail: "Compiled by Labour Bureau. Used for revising minimum wages & MGNREGA wage rates." },
+      { name: "CPI (Rural / Urban / Combined)", domain: "Base Year: 2012", detail: "Compiled by National Statistical Office (NSO), MoSPI. Official inflation target metric for RBI." },
+      { name: "Wholesale Price Index (WPI)", domain: "Base Year: 2011-12", detail: "Released by Office of Economic Adviser (DPIIT). Tracks wholesale goods prices only (no services)." },
+      { name: "Index of Industrial Production (IIP)", domain: "Base Year: 2011-12", detail: "Released monthly by NSO (MoSPI). 8 Core Industries account for 40.27% of total weight." }
+    ];
+
+    function renderCommittees() {
+      const q = document.getElementById('committee-search').value.toLowerCase();
+      const tbody = document.getElementById('committees-tbody');
+      tbody.innerHTML = '';
+      COMMITTEES_DATA.filter(item =>
+        item.name.toLowerCase().includes(q) ||
+        item.domain.toLowerCase().includes(q) ||
+        item.detail.toLowerCase().includes(q)
+      ).forEach(item => {
+        tbody.innerHTML += `
+          <tr class="hover:bg-amber-500/5 transition">
+            <td class="p-3 font-bold text-amber-500">${item.name}</td>
+            <td class="p-3 font-mono text-[11px] text-cyan-400">${item.domain}</td>
+            <td class="p-3 text-slate-600 dark:text-slate-300 leading-relaxed">${item.detail}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // ==================== INITIALIZATION ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderVault('ALL');
+      updateNationalIncome();
+      updateMoneyMultiplier();
+      loadCrisis();
+      renderCommittees();
+    });
+  </script>
+</body>
+</html>
